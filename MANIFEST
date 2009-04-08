@@ -17,3 +17,4 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
 t/01_basic.t
+t/02_olson_abbreviations.t

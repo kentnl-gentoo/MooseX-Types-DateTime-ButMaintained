@@ -1,13 +1,13 @@
 package MooseX::Types::DateTime::ButMaintained;
-
 use strict;
 use warnings;
 
-our $VERSION = "0.04";
+our $VERSION = "0.05";
 
 use DateTime ();
 use DateTime::Locale ();
 use DateTime::TimeZone ();
+use Olson::Abbreviations qw();
 
 use MooseX::Types::Moose qw/Num HashRef Str/;
 
@@ -25,41 +25,53 @@ subtype Duration, as 'DateTime::Duration';
 subtype TimeZone, as 'DateTime::TimeZone';
 subtype Locale,   as 'DateTime::Locale';
 
-subtype( Now,
-    as Str,
-    where { $_ eq 'now' },
-    Moose::Util::TypeConstraints::optimize_as {
-        no warnings 'uninitialized';
-        !ref($_[0]) and $_[0] eq 'now';
-    },
+subtype( Now, as Str, where { $_ eq 'now' },
+	Moose::Util::TypeConstraints::optimize_as {
+		no warnings 'uninitialized';
+		!ref($_[0]) and $_[0] eq 'now';
+	},
 );
 
 our %coercions = (
-    DateTime => [
-		from Num, via { 'DateTime'->from_epoch( epoch => $_ ) },
-		from HashRef, via { 'DateTime'->new( %$_ ) },
-		from Now, via { 'DateTime'->now },
-    ],
-    "DateTime::Duration" => [
-		from Num, via { DateTime::Duration->new( seconds => $_ ) },
-		from HashRef, via { DateTime::Duration->new( %$_ ) },
-    ],
-    "DateTime::TimeZone" => [
-		from Str, via { DateTime::TimeZone->new( name => $_ ) },
-    ],
-    "DateTime::Locale" => [
-        from Moose::Util::TypeConstraints::find_or_create_isa_type_constraint("Locale::Maketext"),
-        via { DateTime::Locale->load($_->language_tag) },
-        from Str, via { DateTime::Locale->load($_) },
-    ],
+	DateTime => [
+		from Num, via { 'DateTime'->from_epoch( epoch => $_ ) }
+		, from HashRef, via { 'DateTime'->new( %$_ ) }
+		, from Now, via { 'DateTime'->now }
+	]
+
+	, "DateTime::Duration" => [
+		from Num, via { DateTime::Duration->new( seconds => $_ ) }
+		, from HashRef, via { DateTime::Duration->new( %$_ ) }
+	]
+
+	, "DateTime::TimeZone" => [
+		from Str, via {
+			# No abbreviation - assumed if we don't have a '/'
+			if ( m,/, ) {
+				return DateTime::TimeZone->new( name => $_ );
+			}
+			# Abbreviation - assumed if we do have a '/'
+			# returns a DateTime::TimeZone::OffsetOnly
+			else {
+				my $offset = Olson::Abbreviations->new({ tz_abbreviation => $_ })->get_offset;
+				return DateTime::TimeZone->new( name => $offset );
+			}
+		}
+	]
+
+	, "DateTime::Locale" => [
+		from Moose::Util::TypeConstraints::find_or_create_isa_type_constraint("Locale::Maketext")
+			, via { DateTime::Locale->load($_->language_tag) }
+		, from Str, via { DateTime::Locale->load($_) }
+	]
 );
 
 for my $type ( "DateTime", DateTime ) {
-    coerce $type => @{ $coercions{DateTime} };
+	coerce $type => @{ $coercions{DateTime} };
 }
 
 for my $type ( "DateTime::Duration", Duration ) {
-    coerce $type => @{ $coercions{"DateTime::Duration"} };
+	coerce $type => @{ $coercions{"DateTime::Duration"} };
 }
 
 for my $type ( "DateTime::TimeZone", TimeZone ) {
@@ -70,7 +82,7 @@ for my $type ( "DateTime::Locale", Locale ) {
 	coerce $type => @{ $coercions{"DateTime::Locale"} };
 }
 
-__PACKAGE__
+1;
 
 __END__
 
@@ -83,26 +95,22 @@ MooseX::Types::DateTime::ButMaintained - L<DateTime> related constraints and coe
 Export Example:
 
 	use MooseX::Types::DateTime qw(TimeZone);
-
-    has time_zone => (
-        isa => TimeZone,
-        is => "rw",
-        coerce => 1,
-    );
-
-    Class->new( time_zone => "Africa/Timbuktu" );
+	has time_zone => (
+			isa  => TimeZone
+			, is => "rw"
+			, coerce => 1
+	);
+	Class->new( time_zone => "Africa/Timbuktu" );
 
 Namespaced Example:
 
 	use MooseX::Types::DateTime;
-
-    has time_zone => (
-        isa => 'DateTime::TimeZone',
-        is => "rw",
-        coerce => 1,
-    );
-
-    Class->new( time_zone => "Africa/Timbuktu" );
+	has time_zone => (
+		isa  => 'DateTime::TimeZone'
+		, is => "rw"
+		, coerce => 1
+	);
+	Class->new( time_zone => "Africa/Timbuktu" );
 
 =head1 CONSTRAINTS
 
@@ -156,6 +164,8 @@ The string is treated as a language tag (e.g. C<en> or C<he_IL>) and given to L<
 
 The C<Locale::Maketext/language_tag> attribute will be used with L<DateTime::Locale/load>.
 
+=back
+
 =item L<DateTime::TimeZone>
 
 A class type for L<DateTime::TimeZone>.
@@ -167,6 +177,8 @@ A class type for L<DateTime::TimeZone>.
 Treated as a time zone name or offset. See L<DateTime::TimeZone/USAGE> for more details on the allowed values.
 
 Delegates to L<DateTime::TimeZone/new> with the string as the C<name> argument.
+
+=back
 
 =back
 
