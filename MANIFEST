@@ -14,7 +14,7 @@ inc/Module/Install/WriteAll.pm
 lib/MooseX/Types/DateTime/ButMaintained.pm
 Makefile.PL
 MANIFEST			This list of files
-MANIFEST.SKIP
 META.yml
 t/01_basic.t
 t/02_olson_abbreviations.t
+t/03_local_floating.t
