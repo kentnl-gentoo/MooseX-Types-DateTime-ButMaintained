@@ -2,18 +2,19 @@ package MooseX::Types::DateTime::ButMaintained;
 use strict;
 use warnings;
 
-our $VERSION = "0.11";
+our $VERSION = "0.13";
 
+use Moose 0.41 ();
 use DateTime ();
 use DateTime::Locale ();
 use DateTime::TimeZone ();
 use Olson::Abbreviations qw();
 
-use MooseX::Types::Moose qw/Num HashRef Str/;
+use MooseX::Types::Moose 0.30 qw/Num HashRef Str/;
 
-use namespace::clean;
+use namespace::autoclean;
 
-use MooseX::Types -declare => [qw( DateTime Duration TimeZone Locale Now )];
+use MooseX::Types 0.30 -declare => [qw( DateTime Duration TimeZone Locale Now )];
 
 class_type "DateTime";
 class_type "DateTime::Duration";
@@ -26,10 +27,16 @@ subtype TimeZone, as 'DateTime::TimeZone';
 subtype Locale,   as 'DateTime::Locale';
 
 subtype( Now, as Str, where { $_ eq 'now' },
-	Moose::Util::TypeConstraints::optimize_as {
-		no warnings 'uninitialized';
-		!ref($_[0]) and $_[0] eq 'now';
-	},
+	( $Moose::VERSION >= 2.0100
+		? Moose::Util::TypeConstraints::inline_as {
+			'no warnings "uninitialized";'.
+			'!ref(' . $_[1] . ') and '. $_[1] .' eq "now"';
+		}
+		: Moose::Util::TypeConstraints::optimize_as {
+			no warnings 'uninitialized';
+			!ref($_[0]) and $_[0] eq 'now';
+		}
+	)
 );
 
 our %coercions = (
@@ -94,7 +101,7 @@ MooseX::Types::DateTime::ButMaintained - L<DateTime> related constraints and coe
 
 Export Example:
 
-	use MooseX::Types::DateTime qw(TimeZone);
+	use MooseX::Types::DateTime::ButMaintained qw(TimeZone);
 	has time_zone => (
 			isa  => TimeZone
 			, is => "rw"
@@ -105,7 +112,7 @@ Export Example:
 
 Namespaced Example:
 
-	use MooseX::Types::DateTime;
+	use MooseX::Types::DateTime::ButMaintained;
 	has time_zone => (
 		isa  => 'DateTime::TimeZone'
 		, is => "rw"
