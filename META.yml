@@ -27,11 +27,11 @@ requires:
   DateTime::Locale: 0.4001
   DateTime::TimeZone: 0.96
   Moose: 0.41
-  MooseX::Types: 0.04
+  MooseX::Types: 0.30
   Olson::Abbreviations: 0
   namespace::autoclean: 0
 resources:
   homepage: http://www.evancarroll.com
   license: http://dev.perl.org/licenses/
   repository: git://github.com/EvanCarroll/mx-t-datetime-butmainted.git
-version: 0.13
+version: 0.14

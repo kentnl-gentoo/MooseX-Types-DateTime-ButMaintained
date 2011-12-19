@@ -25,7 +25,7 @@ requires:
   DateTime::Locale: 0.4001
   DateTime::TimeZone: 0.96
   Moose: 0.41
-  MooseX::Types: 0.04
+  MooseX::Types: 0.30
   Olson::Abbreviations: 0
   namespace::autoclean: 0
-version: 0.13
+version: 0.14
