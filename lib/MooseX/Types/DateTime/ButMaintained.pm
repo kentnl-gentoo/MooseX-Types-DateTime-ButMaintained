@@ -2,13 +2,13 @@ package MooseX::Types::DateTime::ButMaintained;
 use strict;
 use warnings;
 
-our $VERSION = "0.15";
+our $VERSION = "0.16";
 
 use Moose 0.41 ();
 use DateTime ();
 use DateTime::Locale ();
 use DateTime::TimeZone ();
-use Olson::Abbreviations qw();
+use Olson::Abbreviations 0.03 qw();
 
 use MooseX::Types::Moose 0.30 qw/Num HashRef Str/;
 

@@ -5,7 +5,7 @@
       "Evan Carroll <me@evancarroll.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Module::Install version 1.04, CPAN::Meta::Converter version 2.112150",
+   "generated_by" : "Module::Install version 1.06, CPAN::Meta::Converter version 2.112150",
    "license" : [
       "perl_5"
    ],
@@ -41,7 +41,7 @@
             "DateTime::TimeZone" : "0.96",
             "Moose" : "0.41",
             "MooseX::Types" : "0.30",
-            "Olson::Abbreviations" : 0,
+            "Olson::Abbreviations" : "0.03",
             "namespace::autoclean" : 0
          }
       }
@@ -56,5 +56,5 @@
          "url" : "git://github.com/EvanCarroll/mx-t-datetime-butmainted.git"
       }
    },
-   "version" : "0.14"
+   "version" : "0.16"
 }

@@ -15,7 +15,7 @@ requires 'DateTime::Locale'   => '0.4001';
 
 ## DT:TZ broke 0.92 until .95, going to require latest at .96
 requires 'DateTime::TimeZone' => '0.96';
-requires 'Olson::Abbreviations';
+requires 'Olson::Abbreviations' => '0.03';
 
 test_requires 'Test::Exception'  => '0.27';
 test_requires 'Test::More';
